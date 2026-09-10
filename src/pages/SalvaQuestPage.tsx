@@ -1,12 +1,12 @@
 // R > src/pages/SalvaQuestPage.tsx
 
 import { Container, Stack, Typography } from '@mui/material';
-import { QuestInputPanel } from '../components/SalvaQuest/QuestInputPanel';
+import { QuestActionsPanel } from '../components/SalvaQuest/QuestActionsPanel';
 import { QuestResultsBoard } from '../components/SalvaQuest/QuestResultsBoard';
 import { useSalvaQuestBoard } from '../hooks/useSalvaQuestBoard';
 
 export function SalvaQuestPage() {
-  const { rawText, setRawText, status, board, accountsProcessed, handleConfirm, handleClear } =
+  const { status, board, accountsProcessed, errorMessage, isProcessing, handleConfirm, handleClear } =
     useSalvaQuestBoard();
 
   return (
@@ -26,14 +26,9 @@ export function SalvaQuestPage() {
           )}
         </Stack>
 
-        <QuestInputPanel
-          value={rawText}
-          onChange={setRawText}
-          onConfirm={handleConfirm}
-          onClear={handleClear}
-        />
+        <QuestActionsPanel onConfirm={handleConfirm} onClear={handleClear} isProcessing={isProcessing} />
 
-        <QuestResultsBoard status={status} board={board} />
+        <QuestResultsBoard status={status} board={board} errorMessage={errorMessage} />
       </Stack>
     </Container>
   );

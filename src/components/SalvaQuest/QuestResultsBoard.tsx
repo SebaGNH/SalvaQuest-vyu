@@ -8,13 +8,14 @@ import { IndividualAccountsSection } from './IndividualAccountsSection';
 interface QuestResultsBoardProps {
   status: BoardStatus;
   board: ClassifiedBoard | null;
+  errorMessage: string | null;
 }
 
-export function QuestResultsBoard({ status, board }: QuestResultsBoardProps) {
+export function QuestResultsBoard({ status, board, errorMessage }: QuestResultsBoardProps) {
   if (status === 'empty') {
     return (
       <Alert severity="info">
-        Pegá el listado de misiones y tocá Confirmar para ver la clasificación.
+        Copiá el listado de misiones y tocá Confirmar para ver la clasificación.
       </Alert>
     );
   }
@@ -22,11 +23,16 @@ export function QuestResultsBoard({ status, board }: QuestResultsBoardProps) {
   if (status === 'error' || !board) {
     return (
       <Alert severity="error">
-        No pude reconocer ninguna cuenta en el texto pegado. Revisá que el formato sea el de
-        siempre (nombre de cuenta, línea &quot;Rerolls: N&quot; y después cada misión).
+        {errorMessage ??
+          'No pude reconocer ninguna cuenta en el texto copiado. Revisá que el formato sea el de siempre.'}
       </Alert>
     );
   }
+
+  const groupedMissionNames = new Set([
+    ...board.grupalesAlta.map((entry) => entry.missionName),
+    ...board.grupalesMedia.map((entry) => entry.missionName),
+  ]);
 
   return (
     <Stack spacing={3}>
@@ -46,6 +52,7 @@ export function QuestResultsBoard({ status, board }: QuestResultsBoardProps) {
         title="🔥 INDIVIDUALES – PRIORIDAD ALTA (3 MISIONES) 🔥"
         accounts={board.individualesAlta}
         emptyLabel="Ninguna cuenta con 3 misiones activas."
+        groupedMissionNames={groupedMissionNames}
       />
 
       <IndividualAccountsSection

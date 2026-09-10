@@ -7,12 +7,14 @@ interface IndividualAccountsSectionProps {
   title: string;
   accounts: ParsedAccount[];
   emptyLabel: string;
+  groupedMissionNames?: Set<string>;
 }
 
 export function IndividualAccountsSection({
   title,
   accounts,
   emptyLabel,
+  groupedMissionNames = new Set(),
 }: IndividualAccountsSectionProps) {
   return (
     <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
@@ -35,14 +37,18 @@ export function IndividualAccountsSection({
                 {account.name}
               </Typography>
               <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mt: 0.5 }}>
-                {account.missions.map((mission) => (
-                  <Chip
-                    key={`${account.name}-${mission.name}`}
-                    label={mission.name}
-                    size="small"
-                    variant="outlined"
-                  />
-                ))}
+                {account.missions.map((mission) => {
+                  const isAlsoGrouped = groupedMissionNames.has(mission.name);
+                  return (
+                    <Chip
+                      key={`${account.name}-${mission.name}`}
+                      label={mission.name}
+                      size="small"
+                      variant={isAlsoGrouped ? 'filled' : 'outlined'}
+                      color={isAlsoGrouped ? 'success' : 'default'}
+                    />
+                  );
+                })}
               </Stack>
             </Box>
           ))}
