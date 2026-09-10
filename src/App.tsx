@@ -1,11 +1,19 @@
-import "./App.css";
+// R > src/App.tsx
 
-function App() {
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { SalvaQuestPage } from './pages/SalvaQuestPage';
+
+const theme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
+export function App() {
   return (
-    <>
-      <p>Hola</p>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <SalvaQuestPage />
+    </ThemeProvider>
   );
 }
-
-export default App;
