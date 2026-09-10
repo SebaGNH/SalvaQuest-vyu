@@ -12,9 +12,19 @@ export function SalvaQuestPage() {
   return (
     <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
       <Stack spacing={3}>
-        <Typography variant="h4" component="h1" fontWeight={700}>
-          Salva Quest
-        </Typography>
+        <Stack direction="row" alignItems="baseline" spacing={1.5} flexWrap="wrap" rowGap={0.5}>
+          <Typography variant="h4" component="h1" fontWeight={700}>
+            Salva Quest
+          </Typography>
+          {accountsProcessed > 0 && (
+            <Typography variant="body1" color="text.secondary">
+              <Typography component="span" variant="h6" fontWeight={700} color="text.primary">
+                {accountsProcessed}
+              </Typography>{' '}
+              cuentas analizadas
+            </Typography>
+          )}
+        </Stack>
 
         <QuestInputPanel
           value={rawText}
@@ -23,7 +33,7 @@ export function SalvaQuestPage() {
           onClear={handleClear}
         />
 
-        <QuestResultsBoard status={status} board={board} accountsProcessed={accountsProcessed} />
+        <QuestResultsBoard status={status} board={board} />
       </Stack>
     </Container>
   );

@@ -31,11 +31,21 @@ export function formatAccountLabel(ref: AccountMissionRef): string {
   return `${ref.accountName} (${ref.missionCount} ${misionLabel})${suffix}`;
 }
 
+function sortAccountRefs(refs: AccountMissionRef[]): AccountMissionRef[] {
+  // las cuentas con más misiones activas van primero, así se ve de un vistazo
+  // cuál es la más urgente para agrupar
+  return [...refs].sort((a, b) => {
+    if (b.missionCount !== a.missionCount) return b.missionCount - a.missionCount;
+    return a.accountName.localeCompare(b.accountName, 'es');
+  });
+}
+
 function buildGroupedEntries(accounts: ParsedAccount[]): GroupedMissionEntry[] {
   const missionToAccounts = new Map<string, AccountMissionRef[]>();
 
   for (const account of accounts) {
     const missionCount = account.missions.length;
+    const missionNames = account.missions.map((mission) => mission.name);
 
     for (const mission of account.missions) {
       if (isExcludedFromGroups(mission.name)) continue;
@@ -44,7 +54,7 @@ function buildGroupedEntries(accounts: ParsedAccount[]): GroupedMissionEntry[] {
 
       // por si el texto trae la misma misión repetida para la misma cuenta
       if (!refs.some((ref) => ref.accountName === account.name)) {
-        refs.push({ accountName: account.name, missionCount });
+        refs.push({ accountName: account.name, missionCount, missions: missionNames });
       }
 
       missionToAccounts.set(mission.name, refs);
@@ -60,7 +70,7 @@ function buildGroupedEntries(accounts: ParsedAccount[]): GroupedMissionEntry[] {
 
     entries.push({
       missionName,
-      accounts: refs,
+      accounts: sortAccountRefs(refs),
       priority: hasThreeMissionAccount ? 'alta' : 'media',
       hasThreeMissionAccount,
     });

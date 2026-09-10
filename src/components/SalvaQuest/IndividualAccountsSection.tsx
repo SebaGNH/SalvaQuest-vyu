@@ -16,9 +16,12 @@ export function IndividualAccountsSection({
 }: IndividualAccountsSectionProps) {
   return (
     <Paper variant="outlined" sx={{ p: { xs: 2, sm: 3 } }}>
-      <Typography variant="h6" gutterBottom>
-        {title}
-      </Typography>
+      <Stack direction="row" alignItems="baseline" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
+        <Typography variant="h6">{title}</Typography>
+        <Typography variant="body2" color="text.secondary">
+          ({accounts.length} {accounts.length === 1 ? 'cuenta' : 'cuentas'})
+        </Typography>
+      </Stack>
 
       {accounts.length === 0 ? (
         <Typography variant="body2" color="text.secondary">

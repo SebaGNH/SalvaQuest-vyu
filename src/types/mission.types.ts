@@ -20,6 +20,7 @@ export type MissionPriority = 'alta' | 'media';
 export interface AccountMissionRef {
   accountName: string;
   missionCount: number;
+  missions: string[];
 }
 
 export interface GroupedMissionEntry {

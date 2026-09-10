@@ -1,6 +1,6 @@
 // R > src/components/SalvaQuest/QuestResultsBoard.tsx
 
-import { Alert, Stack, Typography } from '@mui/material';
+import { Alert, Stack } from '@mui/material';
 import type { BoardStatus, ClassifiedBoard } from '../../types/mission.types';
 import { GroupedMissionsSection } from './GroupedMissionsSection';
 import { IndividualAccountsSection } from './IndividualAccountsSection';
@@ -8,10 +8,9 @@ import { IndividualAccountsSection } from './IndividualAccountsSection';
 interface QuestResultsBoardProps {
   status: BoardStatus;
   board: ClassifiedBoard | null;
-  accountsProcessed: number;
 }
 
-export function QuestResultsBoard({ status, board, accountsProcessed }: QuestResultsBoardProps) {
+export function QuestResultsBoard({ status, board }: QuestResultsBoardProps) {
   if (status === 'empty') {
     return (
       <Alert severity="info">
@@ -31,10 +30,6 @@ export function QuestResultsBoard({ status, board, accountsProcessed }: QuestRes
 
   return (
     <Stack spacing={3}>
-      <Typography variant="body2" color="text.secondary">
-        Se procesaron {accountsProcessed} cuenta{accountsProcessed === 1 ? '' : 's'}.
-      </Typography>
-
       <GroupedMissionsSection
         title="🥇 GRUPALES – PRIORIDAD ALTA 🥇"
         entries={board.grupalesAlta}
