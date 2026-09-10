@@ -6,8 +6,17 @@ import { QuestResultsBoard } from '../components/SalvaQuest/QuestResultsBoard';
 import { useSalvaQuestBoard } from '../hooks/useSalvaQuestBoard';
 
 export function SalvaQuestPage() {
-  const { status, board, accountsProcessed, errorMessage, isProcessing, handleConfirm, handleClear } =
-    useSalvaQuestBoard();
+  const {
+    status,
+    board,
+    accountsProcessed,
+    errorMessage,
+    isProcessing,
+    hiddenMissionNames,
+    handleConfirm,
+    handleClear,
+    handleHideMission,
+  } = useSalvaQuestBoard();
 
   return (
     <Container maxWidth="md" sx={{ py: { xs: 3, sm: 5 } }}>
@@ -28,7 +37,13 @@ export function SalvaQuestPage() {
 
         <QuestActionsPanel onConfirm={handleConfirm} onClear={handleClear} isProcessing={isProcessing} />
 
-        <QuestResultsBoard status={status} board={board} errorMessage={errorMessage} />
+        <QuestResultsBoard
+          status={status}
+          board={board}
+          errorMessage={errorMessage}
+          hiddenMissionNames={hiddenMissionNames}
+          onHideMission={handleHideMission}
+        />
       </Stack>
     </Container>
   );

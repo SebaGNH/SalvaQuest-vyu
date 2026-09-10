@@ -11,8 +11,10 @@ interface UseSalvaQuestBoardResult {
   accountsProcessed: number;
   errorMessage: string | null;
   isProcessing: boolean;
+  hiddenMissionNames: Set<string>;
   handleConfirm: () => Promise<void>;
   handleClear: () => void;
+  handleHideMission: (missionName: string) => void;
 }
 
 export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
@@ -21,6 +23,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
   const [accountsProcessed, setAccountsProcessed] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hiddenMissionNames, setHiddenMissionNames] = useState<Set<string>>(new Set());
 
   const handleConfirm = useCallback(async () => {
     setIsProcessing(true);
@@ -68,6 +71,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
       const classified = classifyMissions(accounts);
       setBoard(classified);
       setAccountsProcessed(accounts.length);
+      setHiddenMissionNames(new Set());
       setStatus('success');
     } catch (err) {
       console.log('[useSalvaQuestBoard] Error al procesar el texto de misiones:', err);
@@ -83,7 +87,16 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     setBoard(null);
     setAccountsProcessed(0);
     setErrorMessage(null);
+    setHiddenMissionNames(new Set());
     setStatus('empty');
+  }, []);
+
+  const handleHideMission = useCallback((missionName: string) => {
+    setHiddenMissionNames((previous) => {
+      const next = new Set(previous);
+      next.add(missionName);
+      return next;
+    });
   }, []);
 
   return {
@@ -92,7 +105,9 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     accountsProcessed,
     errorMessage,
     isProcessing,
+    hiddenMissionNames,
     handleConfirm,
     handleClear,
+    handleHideMission,
   };
 }

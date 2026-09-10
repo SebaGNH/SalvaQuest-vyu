@@ -9,9 +9,17 @@ interface QuestResultsBoardProps {
   status: BoardStatus;
   board: ClassifiedBoard | null;
   errorMessage: string | null;
+  hiddenMissionNames: Set<string>;
+  onHideMission: (missionName: string) => void;
 }
 
-export function QuestResultsBoard({ status, board, errorMessage }: QuestResultsBoardProps) {
+export function QuestResultsBoard({
+  status,
+  board,
+  errorMessage,
+  hiddenMissionNames,
+  onHideMission,
+}: QuestResultsBoardProps) {
   if (status === 'empty') {
     return (
       <Alert severity="info">
@@ -29,36 +37,53 @@ export function QuestResultsBoard({ status, board, errorMessage }: QuestResultsB
     );
   }
 
+  // las misiones que el usuario fue marcando como completadas se sacan de las
+  // listas grupales; el resto del tablero (individuales) queda como estaba
+  const grupalesAlta = board.grupalesAlta.filter((entry) => !hiddenMissionNames.has(entry.missionName));
+  const grupalesMedia = board.grupalesMedia.filter((entry) => !hiddenMissionNames.has(entry.missionName));
+
   const groupedMissionNames = new Set([
-    ...board.grupalesAlta.map((entry) => entry.missionName),
-    ...board.grupalesMedia.map((entry) => entry.missionName),
+    ...grupalesAlta.map((entry) => entry.missionName),
+    ...grupalesMedia.map((entry) => entry.missionName),
   ]);
+
+  const nothingToShow =
+    grupalesAlta.length === 0 &&
+    grupalesMedia.length === 0 &&
+    board.individualesAlta.length === 0 &&
+    board.individualesBaja.length === 0;
+
+  if (nothingToShow) {
+    return (
+      <Alert severity="success">
+        No quedan misiones grupales ni individuales pendientes en esta tanda.
+      </Alert>
+    );
+  }
 
   return (
     <Stack spacing={3}>
       <GroupedMissionsSection
         title="🥇 GRUPALES – PRIORIDAD ALTA 🥇"
-        entries={board.grupalesAlta}
-        emptyLabel="No hay misiones grupales de prioridad alta en esta tanda."
+        entries={grupalesAlta}
+        onHideMission={onHideMission}
       />
 
       <GroupedMissionsSection
         title="🌓 GRUPALES – PRIORIDAD MEDIA 🌓"
-        entries={board.grupalesMedia}
-        emptyLabel="No hay misiones grupales de prioridad media en esta tanda."
+        entries={grupalesMedia}
+        onHideMission={onHideMission}
       />
 
       <IndividualAccountsSection
         title="🔥 INDIVIDUALES – PRIORIDAD ALTA (3 MISIONES) 🔥"
         accounts={board.individualesAlta}
-        emptyLabel="Ninguna cuenta con 3 misiones activas."
         groupedMissionNames={groupedMissionNames}
       />
 
       <IndividualAccountsSection
         title="🔻 INDIVIDUALES – PRIORIDAD BAJA (2 MISIONES) 🔻"
         accounts={board.individualesBaja}
-        emptyLabel="Ninguna cuenta con 2 misiones de Husk Extermination."
       />
     </Stack>
   );
