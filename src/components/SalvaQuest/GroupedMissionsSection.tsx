@@ -77,7 +77,7 @@ export function GroupedMissionsSection({ title, entries, onHideMission }: Groupe
               <Typography variant="subtitle1" fontWeight={600}>
                 {entry.missionName}
               </Typography>
-              <Tooltip title="Ya la completé, sacarla de la lista">
+              <Tooltip title="Ya la completé, sacarla de la lista" placement="right" arrow>
                 <IconButton
                   size="small"
                   onClick={() => onHideMission(entry.missionName)}

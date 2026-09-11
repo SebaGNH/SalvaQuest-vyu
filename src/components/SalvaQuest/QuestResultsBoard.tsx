@@ -10,7 +10,9 @@ interface QuestResultsBoardProps {
   board: ClassifiedBoard | null;
   errorMessage: string | null;
   hiddenMissionNames: Set<string>;
+  hiddenAccountNames: Set<string>;
   onHideMission: (missionName: string) => void;
+  onHideAccount: (accountName: string) => void;
 }
 
 export function QuestResultsBoard({
@@ -18,12 +20,14 @@ export function QuestResultsBoard({
   board,
   errorMessage,
   hiddenMissionNames,
+  hiddenAccountNames,
   onHideMission,
+  onHideAccount,
 }: QuestResultsBoardProps) {
   if (status === 'empty') {
     return (
       <Alert severity="info">
-        Copiá el listado de misiones y tocá Confirmar para ver la clasificación.
+        Copiá el listado de misiones y tocá Pegar para ver la clasificación.
       </Alert>
     );
   }
@@ -37,10 +41,12 @@ export function QuestResultsBoard({
     );
   }
 
-  // las misiones que el usuario fue marcando como completadas se sacan de las
-  // listas grupales; el resto del tablero (individuales) queda como estaba
+  // las misiones y cuentas que el usuario fue marcando como completadas se
+  // sacan de las listas correspondientes
   const grupalesAlta = board.grupalesAlta.filter((entry) => !hiddenMissionNames.has(entry.missionName));
   const grupalesMedia = board.grupalesMedia.filter((entry) => !hiddenMissionNames.has(entry.missionName));
+  const individualesAlta = board.individualesAlta.filter((account) => !hiddenAccountNames.has(account.name));
+  const individualesBaja = board.individualesBaja.filter((account) => !hiddenAccountNames.has(account.name));
 
   const groupedMissionNames = new Set([
     ...grupalesAlta.map((entry) => entry.missionName),
@@ -50,8 +56,8 @@ export function QuestResultsBoard({
   const nothingToShow =
     grupalesAlta.length === 0 &&
     grupalesMedia.length === 0 &&
-    board.individualesAlta.length === 0 &&
-    board.individualesBaja.length === 0;
+    individualesAlta.length === 0 &&
+    individualesBaja.length === 0;
 
   if (nothingToShow) {
     return (
@@ -77,13 +83,15 @@ export function QuestResultsBoard({
 
       <IndividualAccountsSection
         title="🔥 INDIVIDUALES – PRIORIDAD ALTA (3 MISIONES) 🔥"
-        accounts={board.individualesAlta}
+        accounts={individualesAlta}
         groupedMissionNames={groupedMissionNames}
+        onHideAccount={onHideAccount}
       />
 
       <IndividualAccountsSection
         title="🔻 INDIVIDUALES – PRIORIDAD BAJA (2 MISIONES) 🔻"
-        accounts={board.individualesBaja}
+        accounts={individualesBaja}
+        onHideAccount={onHideAccount}
       />
     </Stack>
   );

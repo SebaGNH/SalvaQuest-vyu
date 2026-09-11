@@ -12,9 +12,11 @@ interface UseSalvaQuestBoardResult {
   errorMessage: string | null;
   isProcessing: boolean;
   hiddenMissionNames: Set<string>;
+  hiddenAccountNames: Set<string>;
   handleConfirm: () => Promise<void>;
   handleClear: () => void;
   handleHideMission: (missionName: string) => void;
+  handleHideAccount: (accountName: string) => void;
 }
 
 export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
@@ -24,6 +26,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [hiddenMissionNames, setHiddenMissionNames] = useState<Set<string>>(new Set());
+  const [hiddenAccountNames, setHiddenAccountNames] = useState<Set<string>>(new Set());
 
   const handleConfirm = useCallback(async () => {
     setIsProcessing(true);
@@ -39,7 +42,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
       setStatus('error');
       setErrorMessage(
         'No pude acceder al portapapeles. Revisá que le hayas dado permiso al navegador ' +
-          'y que hayas copiado el texto antes de tocar Confirmar.',
+          'y que hayas copiado el texto antes de tocar Pegar.',
       );
       setBoard(null);
       setIsProcessing(false);
@@ -48,7 +51,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
 
     if (!clipboardText.trim()) {
       setStatus('error');
-      setErrorMessage('El portapapeles está vacío. Copiá el listado de misiones y volvé a tocar Confirmar.');
+      setErrorMessage('El portapapeles está vacío. Copiá el listado de misiones y volvé a tocar Pegar.');
       setBoard(null);
       setIsProcessing(false);
       return;
@@ -72,6 +75,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
       setBoard(classified);
       setAccountsProcessed(accounts.length);
       setHiddenMissionNames(new Set());
+      setHiddenAccountNames(new Set());
       setStatus('success');
     } catch (err) {
       console.log('[useSalvaQuestBoard] Error al procesar el texto de misiones:', err);
@@ -88,6 +92,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     setAccountsProcessed(0);
     setErrorMessage(null);
     setHiddenMissionNames(new Set());
+    setHiddenAccountNames(new Set());
     setStatus('empty');
   }, []);
 
@@ -99,6 +104,14 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     });
   }, []);
 
+  const handleHideAccount = useCallback((accountName: string) => {
+    setHiddenAccountNames((previous) => {
+      const next = new Set(previous);
+      next.add(accountName);
+      return next;
+    });
+  }, []);
+
   return {
     status,
     board,
@@ -106,8 +119,10 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     errorMessage,
     isProcessing,
     hiddenMissionNames,
+    hiddenAccountNames,
     handleConfirm,
     handleClear,
     handleHideMission,
+    handleHideAccount,
   };
 }

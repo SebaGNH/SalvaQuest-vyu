@@ -13,9 +13,11 @@ export function SalvaQuestPage() {
     errorMessage,
     isProcessing,
     hiddenMissionNames,
+    hiddenAccountNames,
     handleConfirm,
     handleClear,
     handleHideMission,
+    handleHideAccount,
   } = useSalvaQuestBoard();
 
   return (
@@ -42,7 +44,9 @@ export function SalvaQuestPage() {
           board={board}
           errorMessage={errorMessage}
           hiddenMissionNames={hiddenMissionNames}
+          hiddenAccountNames={hiddenAccountNames}
           onHideMission={handleHideMission}
+          onHideAccount={handleHideAccount}
         />
       </Stack>
     </Container>

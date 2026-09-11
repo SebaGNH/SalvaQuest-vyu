@@ -300,11 +300,11 @@ Quest:daily_mission_specialist_outlander
 0/3
 Radmare
 Rerolls: 1
-Daily Destroy (Park Seesaws)
-Quest:daily_destroyseesaws
+All Together Now
+Quest:daily_high_priority
 250
-100
-0/6
+150
+0/50
 Party of 25
 Quest:daily_partyof50
 250
@@ -316,6 +316,12 @@ Quest:daily_safes
 100
 0/1
 Voemso
+Rerolls: 1
+Party of 25
+Quest:daily_partyof50
+250
+100
+0/25
 Rerolls: 1
 All Together Now
 Quest:daily_high_priority
@@ -561,11 +567,11 @@ Quest:daily_discovery_industriallocations
 0/3
 Tarreba
 Rerolls: 0
-Daily Destroy (Park Seesaws)
-Quest:daily_destroyseesaws
+Party of 25
+Quest:daily_partyof50
 250
 100
-0/6
+1/25
 All Together Now
 Quest:daily_high_priority
 250
