@@ -6,6 +6,7 @@ import type {
   GroupedMissionEntry,
   ParsedAccount,
 } from '../types/mission.types';
+import { accountHasComboMissions } from './missionColors.service';
 
 // misiones que quedan afuera de las secciones grupales por completo,
 // sea cual sea la variante (ej: "Husk Extermination (Ninja)" también cuenta)
@@ -99,11 +100,15 @@ export function classifyMissions(accounts: ParsedAccount[]): ClassifiedBoard {
 
   const individualesAlta = accounts.filter((account) => account.missions.length === 3);
 
-  const individualesBaja = accounts.filter(
-    (account) =>
-      account.missions.length === 2 &&
-      account.missions.every((mission) => isHuskExtermination(mission.name)),
-  );
+  // en baja entran las cuentas de 2 misiones que sean ambas Husk, y también
+  // las que tengan el combo All Together Now + Party of 25, que conviene
+  // jugarlas juntas aunque no sean Husk
+  const individualesBaja = accounts.filter((account) => {
+    if (account.missions.length !== 2) return false;
+
+    const allHusk = account.missions.every((mission) => isHuskExtermination(mission.name));
+    return allHusk || accountHasComboMissions(account.missions);
+  });
 
   return { grupalesAlta, grupalesMedia, individualesAlta, individualesBaja };
 }

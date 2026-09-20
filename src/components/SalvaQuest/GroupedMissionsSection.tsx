@@ -11,6 +11,28 @@ interface GroupedMissionsSectionProps {
   onHideMission: (missionName: string) => void;
 }
 
+/**
+ * Cuenta en cuántas misiones de esta sección aparece cada cuenta. Nos sirve
+ * para destacar las que tienen 3 misiones activas y además están en más de
+ * una grupal: esas son las que más conviene arrancar primero, porque se
+ * pueden encadenar con otras cuentas en la misma situación.
+ */
+function buildAppearanceCount(entries: GroupedMissionEntry[]): Map<string, number> {
+  const counts = new Map<string, number>();
+
+  for (const entry of entries) {
+    for (const accountRef of entry.accounts) {
+      counts.set(accountRef.accountName, (counts.get(accountRef.accountName) ?? 0) + 1);
+    }
+  }
+
+  return counts;
+}
+
+function isKeyAccount(accountRef: AccountMissionRef, appearances: Map<string, number>): boolean {
+  return accountRef.missionCount === 3 && (appearances.get(accountRef.accountName) ?? 0) >= 2;
+}
+
 function AccountTooltipContent({ missions }: { missions: string[] }) {
   if (missions.length === 0) {
     return (
@@ -34,9 +56,10 @@ function AccountTooltipContent({ missions }: { missions: string[] }) {
 interface AccountRowProps {
   accountRef: AccountMissionRef;
   currentMissionName: string;
+  isKey: boolean;
 }
 
-function AccountRow({ accountRef, currentMissionName }: AccountRowProps) {
+function AccountRow({ accountRef, currentMissionName, isKey }: AccountRowProps) {
   // en el tooltip no tiene sentido repetir la misión sobre la que ya estás
   // parado, mostramos solo el resto de las misiones de esa cuenta
   const otherMissions = accountRef.missions.filter((name) => name !== currentMissionName);
@@ -48,7 +71,7 @@ function AccountRow({ accountRef, currentMissionName }: AccountRowProps) {
         sx={{
           cursor: 'default',
           width: 'fit-content',
-          fontWeight: accountRef.missionCount === 3 ? 600 : 400,
+          fontWeight: isKey ? 700 : 400,
           color: accountRef.missionCount === 3 ? 'success.main' : 'text.primary',
         }}
       >
@@ -61,6 +84,16 @@ function AccountRow({ accountRef, currentMissionName }: AccountRowProps) {
 export function GroupedMissionsSection({ title, entries, onHideMission }: GroupedMissionsSectionProps) {
   if (entries.length === 0) return null;
 
+  const appearances = buildAppearanceCount(entries);
+
+  // las misiones que involucran cuentas clave van arriba de todo; el resto
+  // conserva el orden que ya trae el clasificador (sort estable)
+  const sortedEntries = [...entries].sort((a, b) => {
+    const aHasKey = a.accounts.some((accountRef) => isKeyAccount(accountRef, appearances));
+    const bHasKey = b.accounts.some((accountRef) => isKeyAccount(accountRef, appearances));
+    return Number(bHasKey) - Number(aHasKey);
+  });
+
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, border: 1, borderColor: 'divider', borderRadius: 1 }}>
       <Stack direction="row" alignItems="baseline" spacing={1} flexWrap="wrap" sx={{ mb: 1 }}>
@@ -71,7 +104,7 @@ export function GroupedMissionsSection({ title, entries, onHideMission }: Groupe
       </Stack>
 
       <Stack spacing={2.5}>
-        {entries.map((entry) => (
+        {sortedEntries.map((entry) => (
           <Box key={entry.missionName}>
             <Stack direction="row" alignItems="center" spacing={0.5}>
               <Typography variant="subtitle1" fontWeight={600}>
@@ -93,6 +126,7 @@ export function GroupedMissionsSection({ title, entries, onHideMission }: Groupe
                   key={accountRef.accountName}
                   accountRef={accountRef}
                   currentMissionName={entry.missionName}
+                  isKey={isKeyAccount(accountRef, appearances)}
                 />
               ))}
             </Stack>
