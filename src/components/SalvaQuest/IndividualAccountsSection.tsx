@@ -2,36 +2,18 @@
 
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import type { ParsedAccount, ParsedMission } from '../../types/mission.types';
-import { accountHasComboMissions, getMissionTextColor } from '../../services/missionColors.service';
+import type { ParsedAccount } from '../../types/mission.types';
+import {
+  accountHasComboMissions,
+  resolveMissionColor,
+  sortByMissionDisplayOrder,
+} from '../../services/missionColors.service';
 
 interface IndividualAccountsSectionProps {
   title: string;
   accounts: ParsedAccount[];
   groupedMissionNames?: Set<string>;
   onHideAccount: (accountName: string) => void;
-}
-
-// mismo verde que usamos para "3 misiones ✅" en la sección de grupales
-const GROUPED_TEXT_COLOR = 'success.main';
-
-// orden de lectura: primero Husk Extermination, después las que también son
-// grupales (verdes), por último el resto tal cual vienen
-function getMissionOrderCategory(missionName: string, isAlsoGrouped: boolean): number {
-  if (missionName.startsWith('Husk Extermination')) return 0;
-  if (isAlsoGrouped) return 1;
-  return 2;
-}
-
-function sortMissionsForDisplay(
-  missions: ParsedMission[],
-  groupedMissionNames: Set<string>,
-): ParsedMission[] {
-  return [...missions].sort((a, b) => {
-    const categoryA = getMissionOrderCategory(a.name, groupedMissionNames.has(a.name));
-    const categoryB = getMissionOrderCategory(b.name, groupedMissionNames.has(b.name));
-    return categoryA - categoryB;
-  });
 }
 
 export function IndividualAccountsSection({
@@ -54,7 +36,11 @@ export function IndividualAccountsSection({
       <Stack spacing={2.5}>
         {accounts.map((account) => {
           const hasComboMissions = accountHasComboMissions(account.missions);
-          const sortedMissions = sortMissionsForDisplay(account.missions, groupedMissionNames);
+          const sortedMissions = sortByMissionDisplayOrder(
+            account.missions,
+            (mission) => mission.name,
+            groupedMissionNames,
+          );
 
           return (
             <Box key={account.name}>
@@ -74,21 +60,21 @@ export function IndividualAccountsSection({
               </Stack>
 
               <Stack spacing={0.25} sx={{ mt: 0.5 }}>
-                {sortedMissions.map((mission) => {
-                  const isAlsoGrouped = groupedMissionNames.has(mission.name);
-                  const specialColor = getMissionTextColor(mission.name, hasComboMissions);
-                  const textColor = specialColor ?? (isAlsoGrouped ? GROUPED_TEXT_COLOR : undefined);
-
-                  return (
-                    <Typography
-                      key={`${account.name}-${mission.name}`}
-                      variant="body2"
-                      sx={{ color: textColor }}
-                    >
-                      {mission.name}
-                    </Typography>
-                  );
-                })}
+                {sortedMissions.map((mission) => (
+                  <Typography
+                    key={`${account.name}-${mission.name}`}
+                    variant="body2"
+                    sx={{
+                      color: resolveMissionColor(
+                        mission.name,
+                        hasComboMissions,
+                        groupedMissionNames.has(mission.name),
+                      ),
+                    }}
+                  >
+                    {mission.name}
+                  </Typography>
+                ))}
               </Stack>
             </Box>
           );

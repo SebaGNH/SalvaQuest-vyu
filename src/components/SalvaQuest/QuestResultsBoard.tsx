@@ -72,12 +72,14 @@ export function QuestResultsBoard({
       <GroupedMissionsSection
         title="🥇 GRUPALES – PRIORIDAD ALTA 🥇"
         entries={grupalesAlta}
+        groupedMissionNames={groupedMissionNames}
         onHideMission={onHideMission}
       />
 
       <GroupedMissionsSection
         title="🌓 GRUPALES – PRIORIDAD MEDIA 🌓"
         entries={grupalesMedia}
+        groupedMissionNames={groupedMissionNames}
         onHideMission={onHideMission}
       />
 

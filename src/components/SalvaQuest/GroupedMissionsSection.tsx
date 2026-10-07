@@ -4,10 +4,16 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import type { AccountMissionRef, GroupedMissionEntry } from '../../types/mission.types';
 import { formatAccountLabel } from '../../services/missionClassifier.service';
+import {
+  namesHaveComboMissions,
+  resolveMissionColor,
+  sortByMissionDisplayOrder,
+} from '../../services/missionColors.service';
 
 interface GroupedMissionsSectionProps {
   title: string;
   entries: GroupedMissionEntry[];
+  groupedMissionNames: Set<string>;
   onHideMission: (missionName: string) => void;
 }
 
@@ -33,7 +39,17 @@ function isKeyAccount(accountRef: AccountMissionRef, appearances: Map<string, nu
   return accountRef.missionCount === 3 && (appearances.get(accountRef.accountName) ?? 0) >= 2;
 }
 
-function AccountTooltipContent({ missions }: { missions: string[] }) {
+interface AccountTooltipContentProps {
+  missions: string[];
+  hasComboMissions: boolean;
+  groupedMissionNames: Set<string>;
+}
+
+function AccountTooltipContent({
+  missions,
+  hasComboMissions,
+  groupedMissionNames,
+}: AccountTooltipContentProps) {
   if (missions.length === 0) {
     return (
       <Typography variant="caption" component="span">
@@ -42,10 +58,28 @@ function AccountTooltipContent({ missions }: { missions: string[] }) {
     );
   }
 
+  // mismo orden y colores que en individuales: Husk, verdes, resto
+  const sortedMissions = sortByMissionDisplayOrder(
+    missions,
+    (missionName) => missionName,
+    groupedMissionNames,
+  );
+
   return (
     <Stack spacing={0.25} sx={{ py: 0.5 }}>
-      {missions.map((missionName) => (
-        <Typography key={missionName} variant="caption" component="span">
+      {sortedMissions.map((missionName) => (
+        <Typography
+          key={missionName}
+          variant="caption"
+          component="span"
+          sx={{
+            color: resolveMissionColor(
+              missionName,
+              hasComboMissions,
+              groupedMissionNames.has(missionName),
+            ),
+          }}
+        >
           {missionName}
         </Typography>
       ))}
@@ -57,15 +91,30 @@ interface AccountRowProps {
   accountRef: AccountMissionRef;
   currentMissionName: string;
   isKey: boolean;
+  groupedMissionNames: Set<string>;
 }
 
-function AccountRow({ accountRef, currentMissionName, isKey }: AccountRowProps) {
+function AccountRow({ accountRef, currentMissionName, isKey, groupedMissionNames }: AccountRowProps) {
   // en el tooltip no tiene sentido repetir la misión sobre la que ya estás
   // parado, mostramos solo el resto de las misiones de esa cuenta
   const otherMissions = accountRef.missions.filter((name) => name !== currentMissionName);
 
+  // el combo se evalúa sobre TODAS las misiones de la cuenta, no solo las que
+  // quedan después de filtrar la actual
+  const hasComboMissions = namesHaveComboMissions(accountRef.missions);
+
   return (
-    <Tooltip title={<AccountTooltipContent missions={otherMissions} />} placement="right" arrow>
+    <Tooltip
+      title={
+        <AccountTooltipContent
+          missions={otherMissions}
+          hasComboMissions={hasComboMissions}
+          groupedMissionNames={groupedMissionNames}
+        />
+      }
+      placement="right"
+      arrow
+    >
       <Typography
         variant="body2"
         sx={{
@@ -81,7 +130,12 @@ function AccountRow({ accountRef, currentMissionName, isKey }: AccountRowProps) 
   );
 }
 
-export function GroupedMissionsSection({ title, entries, onHideMission }: GroupedMissionsSectionProps) {
+export function GroupedMissionsSection({
+  title,
+  entries,
+  groupedMissionNames,
+  onHideMission,
+}: GroupedMissionsSectionProps) {
   if (entries.length === 0) return null;
 
   const appearances = buildAppearanceCount(entries);
@@ -127,6 +181,7 @@ export function GroupedMissionsSection({ title, entries, onHideMission }: Groupe
                   accountRef={accountRef}
                   currentMissionName={entry.missionName}
                   isKey={isKeyAccount(accountRef, appearances)}
+                  groupedMissionNames={groupedMissionNames}
                 />
               ))}
             </Stack>
