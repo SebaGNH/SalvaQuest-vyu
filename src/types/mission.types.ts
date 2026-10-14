@@ -35,6 +35,11 @@ export interface ClassifiedBoard {
   grupalesMedia: GroupedMissionEntry[];
   individualesAlta: ParsedAccount[];
   individualesBaja: ParsedAccount[];
+  // todas las cuentas tal cual se pegaron, para la vista "Listar"
+  allAccounts: ParsedAccount[];
 }
 
 export type BoardStatus = 'empty' | 'success' | 'error';
+
+// 'classification' = grupales + individuales, 'allMissions' = listado completo por cuenta
+export type BoardViewMode = 'classification' | 'allMissions';

@@ -110,5 +110,5 @@ export function classifyMissions(accounts: ParsedAccount[]): ClassifiedBoard {
     return allHusk || accountHasComboMissions(account.missions);
   });
 
-  return { grupalesAlta, grupalesMedia, individualesAlta, individualesBaja };
+  return { grupalesAlta, grupalesMedia, individualesAlta, individualesBaja, allAccounts: accounts };
 }

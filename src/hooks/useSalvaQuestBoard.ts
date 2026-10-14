@@ -1,7 +1,7 @@
 // R > src/hooks/useSalvaQuestBoard.ts
 
 import { useCallback, useState } from 'react';
-import type { BoardStatus, ClassifiedBoard } from '../types/mission.types';
+import type { BoardStatus, BoardViewMode, ClassifiedBoard } from '../types/mission.types';
 import { parseMissionsText } from '../services/missionParser.service';
 import { classifyMissions } from '../services/missionClassifier.service';
 
@@ -13,8 +13,10 @@ interface UseSalvaQuestBoardResult {
   isProcessing: boolean;
   hiddenMissionNames: Set<string>;
   hiddenAccountNames: Set<string>;
+  viewMode: BoardViewMode;
   handleConfirm: () => Promise<void>;
   handleClear: () => void;
+  handleToggleViewMode: () => void;
   handleHideMission: (missionName: string) => void;
   handleHideAccount: (accountName: string) => void;
 }
@@ -27,6 +29,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
   const [isProcessing, setIsProcessing] = useState(false);
   const [hiddenMissionNames, setHiddenMissionNames] = useState<Set<string>>(new Set());
   const [hiddenAccountNames, setHiddenAccountNames] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<BoardViewMode>('classification');
 
   const handleConfirm = useCallback(async () => {
     setIsProcessing(true);
@@ -76,6 +79,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
       setAccountsProcessed(accounts.length);
       setHiddenMissionNames(new Set());
       setHiddenAccountNames(new Set());
+      setViewMode('classification');
       setStatus('success');
     } catch (err) {
       console.log('[useSalvaQuestBoard] Error al procesar el texto de misiones:', err);
@@ -93,7 +97,13 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     setErrorMessage(null);
     setHiddenMissionNames(new Set());
     setHiddenAccountNames(new Set());
+    setViewMode('classification');
     setStatus('empty');
+  }, []);
+
+  // alternar la vista no toca board ni lo oculto: al volver, todo queda como estaba
+  const handleToggleViewMode = useCallback(() => {
+    setViewMode((previous) => (previous === 'classification' ? 'allMissions' : 'classification'));
   }, []);
 
   const handleHideMission = useCallback((missionName: string) => {
@@ -120,8 +130,10 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     isProcessing,
     hiddenMissionNames,
     hiddenAccountNames,
+    viewMode,
     handleConfirm,
     handleClear,
+    handleToggleViewMode,
     handleHideMission,
     handleHideAccount,
   };

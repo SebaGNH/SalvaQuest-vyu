@@ -14,8 +14,10 @@ export function SalvaQuestPage() {
     isProcessing,
     hiddenMissionNames,
     hiddenAccountNames,
+    viewMode,
     handleConfirm,
     handleClear,
+    handleToggleViewMode,
     handleHideMission,
     handleHideAccount,
   } = useSalvaQuestBoard();
@@ -24,14 +26,18 @@ export function SalvaQuestPage() {
     <Container maxWidth="md" sx={{ py: { xs: 2, sm: 3 } }}>
       <Stack spacing={2.5}>
         <QuestActionsPanel
+          hasResults={status === 'success'}
+          accountsProcessed={accountsProcessed}
+          isProcessing={isProcessing}
+          viewMode={viewMode}
           onConfirm={handleConfirm}
           onClear={handleClear}
-          isProcessing={isProcessing}
-          accountsProcessed={accountsProcessed}
+          onToggleViewMode={handleToggleViewMode}
         />
 
         <QuestResultsBoard
           status={status}
+          viewMode={viewMode}
           board={board}
           errorMessage={errorMessage}
           hiddenMissionNames={hiddenMissionNames}
