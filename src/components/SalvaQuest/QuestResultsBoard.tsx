@@ -1,12 +1,16 @@
 // R > src/components/SalvaQuest/QuestResultsBoard.tsx
 
 import { Alert, Stack } from '@mui/material';
-import type { BoardStatus, ClassifiedBoard } from '../../types/mission.types';
+import type { BoardStatus, BoardViewMode, ClassifiedBoard } from '../../types/mission.types';
 import { GroupedMissionsSection } from './GroupedMissionsSection';
 import { IndividualAccountsSection } from './IndividualAccountsSection';
 
+const HINT_TEXT =
+  'Copiá el listado de cuentas con sus misiones (Ctrl+C / Cmd+C) y tocá Pegar. Lo tomamos directo del portapapeles, no hace falta pegarlo a mano.';
+
 interface QuestResultsBoardProps {
   status: BoardStatus;
+  viewMode: BoardViewMode;
   board: ClassifiedBoard | null;
   errorMessage: string | null;
   hiddenMissionNames: Set<string>;
@@ -17,6 +21,7 @@ interface QuestResultsBoardProps {
 
 export function QuestResultsBoard({
   status,
+  viewMode,
   board,
   errorMessage,
   hiddenMissionNames,
@@ -25,11 +30,7 @@ export function QuestResultsBoard({
   onHideAccount,
 }: QuestResultsBoardProps) {
   if (status === 'empty') {
-    return (
-      <Alert severity="info">
-        Copiá el listado de misiones y tocá Pegar para ver la clasificación.
-      </Alert>
-    );
+    return <Alert severity="info">{HINT_TEXT}</Alert>;
   }
 
   if (status === 'error' || !board) {
@@ -52,6 +53,18 @@ export function QuestResultsBoard({
     ...grupalesAlta.map((entry) => entry.missionName),
     ...grupalesMedia.map((entry) => entry.missionName),
   ]);
+
+  // vista "Listar": todas las cuentas con todas sus misiones, sin tocar lo
+  // que se ocultó en la clasificación (al volver sigue todo como estaba)
+  if (viewMode === 'allMissions') {
+    return (
+      <IndividualAccountsSection
+        title="TODAS LAS MISIONES POR CUENTA"
+        accounts={board.allAccounts}
+        groupedMissionNames={groupedMissionNames}
+      />
+    );
+  }
 
   const nothingToShow =
     grupalesAlta.length === 0 &&

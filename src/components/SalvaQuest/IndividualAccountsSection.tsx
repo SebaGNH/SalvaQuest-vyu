@@ -13,7 +13,8 @@ interface IndividualAccountsSectionProps {
   title: string;
   accounts: ParsedAccount[];
   groupedMissionNames?: Set<string>;
-  onHideAccount: (accountName: string) => void;
+  // si no se pasa, no se muestra el botón de ocultar (ej: vista "Listar")
+  onHideAccount?: (accountName: string) => void;
 }
 
 export function IndividualAccountsSection({
@@ -48,15 +49,17 @@ export function IndividualAccountsSection({
                 <Typography variant="subtitle1" fontWeight={600}>
                   {account.name}
                 </Typography>
-                <Tooltip title="Ya la completé, sacarla de la lista" placement="right" arrow>
-                  <IconButton
-                    size="small"
-                    onClick={() => onHideAccount(account.name)}
-                    aria-label={`Ocultar cuenta ${account.name}`}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
+                {onHideAccount && (
+                  <Tooltip title="Ya la completé, sacarla de la lista" placement="right" arrow>
+                    <IconButton
+                      size="small"
+                      onClick={() => onHideAccount(account.name)}
+                      aria-label={`Ocultar cuenta ${account.name}`}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Stack>
 
               <Stack spacing={0.25} sx={{ mt: 0.5 }}>
