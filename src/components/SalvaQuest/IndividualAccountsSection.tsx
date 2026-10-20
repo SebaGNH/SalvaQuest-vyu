@@ -62,23 +62,25 @@ export function IndividualAccountsSection({
                 )}
               </Stack>
 
-              <Stack spacing={0.25} sx={{ mt: 0.5 }}>
-                {sortedMissions.map((mission) => (
-                  <Typography
-                    key={`${account.name}-${mission.name}`}
-                    variant="body2"
-                    sx={{
-                      color: resolveMissionColor(
-                        mission.name,
-                        hasComboMissions,
-                        groupedMissionNames.has(mission.name),
-                      ),
-                    }}
-                  >
-                    {mission.name}
-                  </Typography>
-                ))}
-              </Stack>
+              {sortedMissions.length > 0 && (
+                <Stack spacing={0.25} sx={{ mt: 0.5 }}>
+                  {sortedMissions.map((mission) => (
+                    <Typography
+                      key={`${account.name}-${mission.name}`}
+                      variant="body2"
+                      sx={{
+                        color: resolveMissionColor(
+                          mission.name,
+                          hasComboMissions,
+                          groupedMissionNames.has(mission.name),
+                        ),
+                      }}
+                    >
+                      {mission.name}
+                    </Typography>
+                  ))}
+                </Stack>
+              )}
             </Box>
           );
         })}

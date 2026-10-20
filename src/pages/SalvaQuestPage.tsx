@@ -15,6 +15,8 @@ export function SalvaQuestPage() {
     hiddenMissionNames,
     hiddenAccountNames,
     viewMode,
+    searchQuery,
+    setSearchQuery,
     handleConfirm,
     handleClear,
     handleToggleViewMode,
@@ -30,6 +32,8 @@ export function SalvaQuestPage() {
           accountsProcessed={accountsProcessed}
           isProcessing={isProcessing}
           viewMode={viewMode}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           onConfirm={handleConfirm}
           onClear={handleClear}
           onToggleViewMode={handleToggleViewMode}
@@ -38,6 +42,7 @@ export function SalvaQuestPage() {
         <QuestResultsBoard
           status={status}
           viewMode={viewMode}
+          searchQuery={searchQuery}
           board={board}
           errorMessage={errorMessage}
           hiddenMissionNames={hiddenMissionNames}

@@ -14,6 +14,8 @@ interface UseSalvaQuestBoardResult {
   hiddenMissionNames: Set<string>;
   hiddenAccountNames: Set<string>;
   viewMode: BoardViewMode;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
   handleConfirm: () => Promise<void>;
   handleClear: () => void;
   handleToggleViewMode: () => void;
@@ -30,6 +32,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
   const [hiddenMissionNames, setHiddenMissionNames] = useState<Set<string>>(new Set());
   const [hiddenAccountNames, setHiddenAccountNames] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<BoardViewMode>('classification');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleConfirm = useCallback(async () => {
     setIsProcessing(true);
@@ -80,6 +83,7 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
       setHiddenMissionNames(new Set());
       setHiddenAccountNames(new Set());
       setViewMode('classification');
+      setSearchQuery('');
       setStatus('success');
     } catch (err) {
       console.log('[useSalvaQuestBoard] Error al procesar el texto de misiones:', err);
@@ -98,11 +102,13 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     setHiddenMissionNames(new Set());
     setHiddenAccountNames(new Set());
     setViewMode('classification');
+    setSearchQuery('');
     setStatus('empty');
   }, []);
 
   // alternar la vista no toca board ni lo oculto: al volver, todo queda como estaba
   const handleToggleViewMode = useCallback(() => {
+    setSearchQuery('');
     setViewMode((previous) => (previous === 'classification' ? 'allMissions' : 'classification'));
   }, []);
 
@@ -131,6 +137,8 @@ export function useSalvaQuestBoard(): UseSalvaQuestBoardResult {
     hiddenMissionNames,
     hiddenAccountNames,
     viewMode,
+    searchQuery,
+    setSearchQuery,
     handleConfirm,
     handleClear,
     handleToggleViewMode,

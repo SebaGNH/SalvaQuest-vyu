@@ -4,6 +4,7 @@ import { Alert, Stack } from '@mui/material';
 import type { BoardStatus, BoardViewMode, ClassifiedBoard } from '../../types/mission.types';
 import { GroupedMissionsSection } from './GroupedMissionsSection';
 import { IndividualAccountsSection } from './IndividualAccountsSection';
+import { partitionAccountsForList } from '../../services/missionSearch.service';
 
 const HINT_TEXT =
   'Copiá el listado de cuentas con sus misiones (Ctrl+C / Cmd+C) y tocá Pegar. Lo tomamos directo del portapapeles, no hace falta pegarlo a mano.';
@@ -11,6 +12,7 @@ const HINT_TEXT =
 interface QuestResultsBoardProps {
   status: BoardStatus;
   viewMode: BoardViewMode;
+  searchQuery: string;
   board: ClassifiedBoard | null;
   errorMessage: string | null;
   hiddenMissionNames: Set<string>;
@@ -22,6 +24,7 @@ interface QuestResultsBoardProps {
 export function QuestResultsBoard({
   status,
   viewMode,
+  searchQuery,
   board,
   errorMessage,
   hiddenMissionNames,
@@ -55,14 +58,41 @@ export function QuestResultsBoard({
   ]);
 
   // vista "Listar": todas las cuentas con todas sus misiones, sin tocar lo
-  // que se ocultó en la clasificación (al volver sigue todo como estaba)
+  // que se ocultó en la clasificación (al volver sigue todo como estaba).
+  // Orden de recuadros: con la misión buscada, sin ella, y al final las
+  // cuentas que no tienen ninguna misión
   if (viewMode === 'allMissions') {
+    const { matching, notMatching, withoutMissions } = partitionAccountsForList(
+      board.allAccounts,
+      searchQuery,
+    );
+    const trimmedQuery = searchQuery.trim();
+    const isSearching = trimmedQuery.length > 0;
+
     return (
-      <IndividualAccountsSection
-        title="TODAS LAS MISIONES POR CUENTA"
-        accounts={board.allAccounts}
-        groupedMissionNames={groupedMissionNames}
-      />
+      <Stack spacing={3}>
+        {isSearching && matching.length === 0 && (
+          <Alert severity="info">Ninguna cuenta tiene una misión que coincida con “{trimmedQuery}”.</Alert>
+        )}
+
+        <IndividualAccountsSection
+          title={isSearching ? 'CUENTAS CON LA MISIÓN BUSCADA' : 'TODAS LAS MISIONES POR CUENTA'}
+          accounts={matching}
+          groupedMissionNames={groupedMissionNames}
+        />
+
+        <IndividualAccountsSection
+          title="CUENTAS SIN LA MISIÓN BUSCADA"
+          accounts={notMatching}
+          groupedMissionNames={groupedMissionNames}
+        />
+
+        <IndividualAccountsSection
+          title="CUENTAS SIN MISIONES DISPONIBLES"
+          accounts={withoutMissions}
+          groupedMissionNames={groupedMissionNames}
+        />
+      </Stack>
     );
   }
 
